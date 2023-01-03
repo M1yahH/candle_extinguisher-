@@ -36,23 +36,26 @@ void loop()
   twist = analogRead(twistPin); //read the potentiometer and save value to twist
   timer = map(twist, 0, 1023, MIN, MAX);//convert potent pin to time
   u8x8.setFont(u8x8_font_chroma48medium8_r);
-  u8x8.setCursor(0, 6);
-  u8x8.print("      ");
+  u8x8.setCursor(0, 0);
+  u8x8.print("          ");
   u8x8.setCursor(0, 0);
   u8x8.print("Timer: "); //print label
-  u8x8.print((timer / 1000));//shows time being selected
+  u8x8.print(timer);//shows time being selected
+  Serial.println((timer/1000));
   buttonState = digitalRead(buttonPin);//save value of buttonPin to buttonState
+  
   if (buttonState == 1 && holder == 0) //if button is pressed...
   {
     holder = 1;
-    Serial.println(timer);//shows timer
+    Serial.println((timer/1000));//shows timer
     selectedTime = timer;//save the time selected
     startTime = millis();//get current time
     endTime = startTime + selectedTime; //compare time right now vs time when we started counting in terms of set duration
   }
   while (endTime > millis())
   {
-    u8x8.print((selectedTime/1000 - 1));//shows timer going down
+    u8x8.print(((endTime-millis())/1000));//shows timer going down
+    Serial.println(((endTime-millis())/1000));//shows timer going down
     delay(1000);//delay 1000 milliseconds
   }
 
@@ -62,8 +65,11 @@ void loop()
     u8x8.setFont(u8x8_font_chroma48medium8_r);
     u8x8.setCursor(2, 1);
     u8x8.print("Timer is Up");//shows that timer is up
+    Serial.println("Timer is Up"); //shows that timer is up on serialmonitor
+    selectedTime = 0;
     motor.write(180); //rotate servo 180 degrees
-    delay(4000)
+    delay(4000);
     motor.write(0);//rotate servo 0 degrees
+    delay(4000);
   }
 }
