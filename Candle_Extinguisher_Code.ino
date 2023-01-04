@@ -11,11 +11,11 @@ int twist = 0; //holds the value of our potentiometer reading
 unsigned long timer = 0;
 int buttonPin = 3;//holds location of button in D3
 int buttonState = 0;//hold state of button, either 0 or 1
-int selectedTime = 0; //holds final time selected
-int endTime = 0; //holds time when timer is up
+unsigned long selectedTime = 0; //holds final time selected
+unsigned long endTime = 0; //holds time when timer is up
 Servo motor;//a servo named fan
 int motorPin = 5;//holds location of servo
-int startTime = 0;//holds time since servo turned on (millis)
+unsigned long startTime = 0;//holds time since servo turned on (millis)
 unsigned long MIN = 1;//minimum time that can be selected
 unsigned long MAX = 60;//maximum time that can be selected
 int holder = 0; //if 0, we need to set time, if 1 we count down
@@ -41,22 +41,24 @@ void loop()
   u8x8.setCursor(0, 0);
   u8x8.print("Timer: "); //print label
   u8x8.print(timer);//shows time being selected
-  Serial.println((timer/1000));
+  Serial.println((timer / 1000));
   buttonState = digitalRead(buttonPin);//save value of buttonPin to buttonState
-  
+
   if (buttonState == 1 && holder == 0) //if button is pressed...
   {
     holder = 1;
-    Serial.println((timer/1000));//shows timer
+    Serial.println("Set Timer To: ");
+    Serial.print((timer / 1000)); //shows timer
     selectedTime = timer;//save the time selected
     startTime = millis();//get current time
     endTime = startTime + selectedTime; //compare time right now vs time when we started counting in terms of set duration
-  }
-  while (endTime > millis())
-  {
-    u8x8.print(((endTime-millis())/1000));//shows timer going down
-    Serial.println(((endTime-millis())/1000));//shows timer going down
-    delay(1000);//delay 1000 milliseconds
+
+    while (endTime > millis())
+    {
+      u8x8.print(((endTime - millis()) / 1000)); //shows timer going down
+      Serial.println(((endTime - millis()) / 1000)); //shows timer going down
+      delay(900);//delay 1000 milliseconds
+    }
   }
 
   if (endTime <= millis() && holder == 1) //when the timer is up...
@@ -67,6 +69,7 @@ void loop()
     u8x8.print("Timer is Up");//shows that timer is up
     Serial.println("Timer is Up"); //shows that timer is up on serialmonitor
     selectedTime = 0;
+    endTime = 0;
     motor.write(180); //rotate servo 180 degrees
     delay(4000);
     motor.write(0);//rotate servo 0 degrees
