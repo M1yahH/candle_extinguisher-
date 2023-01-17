@@ -19,11 +19,13 @@ unsigned long startTime = 0;//holds time since servo turned on (millis)
 unsigned long MIN = 1;//minimum time that can be selected
 unsigned long MAX = 60;//maximum time that can be selected
 int holder = 0; //if 0, we need to set time, if 1 we count down
+int fanPin = 2; //holds location of fan
 void setup()
 {
   u8x8.setBusClock(100000);
   Serial.begin(9600); //starts our serial monitor with 9600 refresh rate
   pinMode(twistPin, INPUT); //set potentiometer as an input
+  pinMode(fanPin, OUTPUT);
   u8x8.begin();
   u8x8.setFlipMode(1);
   motor.attach(motorPin);
@@ -42,13 +44,13 @@ void loop()
   u8x8.print("Timer: "); //print label
   u8x8.print(timer);//shows time being selected
   Serial.println((timer / 1000));
+  Serial.print("Set Timer To: ");
   buttonState = digitalRead(buttonPin);//save value of buttonPin to buttonState
 
   if (buttonState == 1 && holder == 0) //if button is pressed...
   {
     holder = 1;
-    Serial.println("Set Timer To: ");
-    Serial.print((timer / 1000)); //shows timer
+    Serial.println((timer / 1000)); //shows timer
     selectedTime = timer;//save the time selected
     startTime = millis();//get current time
     endTime = startTime + selectedTime; //compare time right now vs time when we started counting in terms of set duration
@@ -57,6 +59,7 @@ void loop()
     {
       u8x8.print(((endTime - millis()) / 1000)); //shows timer going down
       Serial.println(((endTime - millis()) / 1000)); //shows timer going down
+      Serial.print("Time Left: ");
       delay(900);//delay 1000 milliseconds
     }
   }
@@ -67,12 +70,14 @@ void loop()
     u8x8.setFont(u8x8_font_chroma48medium8_r);
     u8x8.setCursor(2, 1);
     u8x8.print("Timer is Up");//shows that timer is up
-    Serial.println("Timer is Up"); //shows that timer is up on serialmonitor
+    Serial.println("         ");
+    Serial.println("Timer is Up!"); //shows that timer is up on serialmonitor
     selectedTime = 0;
     endTime = 0;
-    motor.write(180); //rotate servo 180 degrees
+    digitalWrite(fanPin, HIGH); //turns fan on
+    delay(10000);
+    digitalWrite(fanPin, LOW); //turns fan off
     delay(4000);
-    motor.write(0);//rotate servo 0 degrees
-    delay(4000);
+    Serial.println("Reseting...");
   }
 }
