@@ -9,7 +9,7 @@ U8X8_SSD1306_128X64_NONAME_SW_I2C u8x8(/* clock=*/ SCL, /* data=*/ SDA, /* reset
 int twistPin = 2; //Holds our potentiometer in Analog 2
 int twist = 0; //holds the value of our potentiometer reading
 unsigned long timer = 0;
-int buttonPin = 3;//holds location of button in D3
+int buttonPin = 5;//holds location of button in D3
 int buttonState = 0;//hold state of button, either 0 or 1
 unsigned long selectedTime = 0; //holds final time selected
 unsigned long endTime = 0; //holds time when timer is up
@@ -25,16 +25,17 @@ void setup()
   u8x8.setBusClock(100000);
   Serial.begin(9600); //starts our serial monitor with 9600 refresh rate
   pinMode(twistPin, INPUT); //set potentiometer as an input
-  pinMode(fanPin, OUTPUT);
+  pinMode(fanPin, OUTPUT);//sets fan as output
+  pinMode(buttonPin, INPUT);
   u8x8.begin();
   u8x8.setFlipMode(1);
-  motor.attach(motorPin);
   MIN = MIN * 1000;
   MAX = MAX * 1000;
 }
 
 void loop()
 {
+  digitalWrite(fanPin, LOW);
   twist = analogRead(twistPin); //read the potentiometer and save value to twist
   timer = map(twist, 0, 1023, MIN, MAX);//convert potent pin to time
   u8x8.setFont(u8x8_font_chroma48medium8_r);
@@ -46,7 +47,8 @@ void loop()
   Serial.println((timer / 1000));
   Serial.print("Set Timer To: ");
   buttonState = digitalRead(buttonPin);//save value of buttonPin to buttonState
-
+  //Serial.print("Button State Equals ");
+  //Serial.println(digitalRead(buttonPin));
   if (buttonState == 1 && holder == 0) //if button is pressed...
   {
     holder = 1;
@@ -59,7 +61,7 @@ void loop()
     {
       u8x8.print(((endTime - millis()) / 1000)); //shows timer going down
       Serial.println(((endTime - millis()) / 1000)); //shows timer going down
-      Serial.print("Time Left: ");
+      Serial.print("Time Left: ");//shows timer counting down
       delay(900);//delay 1000 milliseconds
     }
   }
@@ -70,14 +72,14 @@ void loop()
     u8x8.setFont(u8x8_font_chroma48medium8_r);
     u8x8.setCursor(2, 1);
     u8x8.print("Timer is Up");//shows that timer is up
-    Serial.println("         ");
+    Serial.println("         ");//formating
     Serial.println("Timer is Up!"); //shows that timer is up on serialmonitor
     selectedTime = 0;
     endTime = 0;
     digitalWrite(fanPin, HIGH); //turns fan on
-    delay(10000);
+    delay(10000);//delay 10 seconds
     digitalWrite(fanPin, LOW); //turns fan off
-    delay(4000);
-    Serial.println("Reseting...");
+    delay(4000);//delay 4 seconds
+    Serial.println("Reseting...");//shows that timer is reseting
   }
 }
